@@ -39,10 +39,11 @@ The app loads with live reload — any file change updates the app without rebui
 **To bind to a specific host** (e.g. a VPN or alternate network interface):
 
 ```bash
-npx expo start --host <hostname-or-ip>
+REACT_NATIVE_PACKAGER_HOSTNAME=<hostname-or-ip> npx expo start
 ```
 
-The QR code will encode `exp://<hostname>:<port>` — point your phone at that address.
+The QR code will encode `exp://<hostname>:8081` — point your phone at that address.
+Note: `--host` only accepts `lan`, `tunnel`, or `localhost`; use the env var for a custom address.
 
 **To generate a QR image file:**
 
