@@ -2,12 +2,18 @@ node_modules/
 .expo/
 dist/
 npm-debug.*
+web-build/
+.env
+.env.local
+
+# Generated native projects (Expo CNG — regenerate with: npx expo prebuild)
+ios/
+android/
+
+# Credentials / signing
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
 *.orig.*
-web-build/
-.env
-.env.local
