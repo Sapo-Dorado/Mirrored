@@ -22,7 +22,7 @@ This project uses a [Nix flake](https://nixos.wiki/wiki/Flakes) for a reproducib
 nix develop
 ```
 
-Provides: `node` (v22), `npx`, `expo`, `qrencode`.
+Provides: `node` (v22), `npx`, `expo`.
 
 ### Install dependencies
 
@@ -45,12 +45,6 @@ REACT_NATIVE_PACKAGER_HOSTNAME=<hostname-or-ip> npx expo start
 ```
 
 Note: `--host` only accepts `lan`, `tunnel`, or `localhost`; use the env var for a custom hostname.
-
-**To generate a QR image file:**
-
-```bash
-qrencode -o qr.png -s 8 "exp://<your-host>:8081"
-```
 
 ---
 
