@@ -3,7 +3,6 @@
     "name": "Choreo",
     "slug": "choreo",
     "plugins": [
-      "react-native-webview",
       ["expo-share-intent", {
         "iosActivationRules": {
           "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
