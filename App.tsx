@@ -1,20 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import HomeScreen from './src/screens/HomeScreen';
+import PlayerScreen from './src/screens/PlayerScreen';
+
+type Screen = 'home' | 'player';
 
 export default function App() {
+  const [screen, setScreen] = useState<Screen>('home');
+  const [videoUrl, setVideoUrl] = useState('');
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={{ flex: 1, backgroundColor: '#111' }}>
+      <StatusBar style="light" />
+      {screen === 'player' ? (
+        <PlayerScreen
+          videoUrl={videoUrl}
+          onBack={() => setScreen('home')}
+        />
+      ) : (
+        <HomeScreen
+          onPlay={(url) => {
+            setVideoUrl(url);
+            setScreen('player');
+          }}
+        />
+      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

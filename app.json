@@ -2,6 +2,9 @@
   "expo": {
     "name": "Choreo",
     "slug": "choreo",
+    "plugins": [
+      "react-native-webview"
+    ],
     "scheme": "choreo",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +12,12 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sapodorado.choreo"
+      "bundleIdentifier": "com.sapodorado.choreo",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
