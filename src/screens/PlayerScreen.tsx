@@ -17,14 +17,14 @@ interface PlayerScreenProps {
   onBack: () => void;
 }
 
-// Builds a self-contained HTML page that loads the YouTube IFrame API.
-// Using source={{ html, baseUrl: 'https://www.youtube.com' }} makes YouTube
-// think the embed is hosted on youtube.com, bypassing the "Video Player
-// Configuration Error" that WKWebView gets with direct embed URLs.
+// Builds a self-contained HTML page using the official YouTube IFrame API.
+// This is the standard embedding approach per YouTube's ToS.
+// Note: videos with embedding disabled by the uploader will show an error —
+// that is a YouTube policy decision and cannot be worked around.
 //
-// Controls are handled via window._choreo:
+// Controls via window._choreo:
 //   - setRate(n)    → ytPlayer.setPlaybackRate(n)
-//   - setMirror(b)  → CSS transform on the iframe element
+//   - setMirror(b)  → CSS scaleX(-1) on the iframe element
 function buildPlayerHtml(videoId: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -149,10 +149,7 @@ export default function PlayerScreen({ videoUrl, onBack }: PlayerScreenProps) {
 
         <WebView
           ref={webViewRef}
-          source={{
-            html: buildPlayerHtml(videoId),
-            baseUrl: 'https://www.youtube.com',
-          }}
+          source={{ html: buildPlayerHtml(videoId) }}
           style={{ width: playerWidth, height: playerHeight }}
           allowsInlineMediaPlayback
           mediaPlaybackRequiresUserAction={false}
