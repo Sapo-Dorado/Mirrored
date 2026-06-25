@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -12,7 +12,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import MirrorToggle from '../components/MirrorToggle';
 import SeekBar from '../components/SeekBar';
 import SpeedControl from '../components/SpeedControl';
-import { parseYouTubeId } from '../utils/youtube';
+import { parseYouTubeId, fetchVideoTitle } from '../utils/youtube';
 import { useFavorites } from '../hooks/useFavorites';
 
 interface PlayerScreenProps {
@@ -30,7 +30,7 @@ interface PlayerScreenProps {
 // Current fix: wrap embed in a full HTML page with an <iframe>. IFrame API
 // (enablejsapi=1) controls playback rate. controls=0 hides YouTube's own UI.
 // Mirror + fullscreen handled at React Native layer.
-function buildEmbedHtml(videoId: string): string {
+function buildEmbedHtml(videoId: string, initialRate: number): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -52,7 +52,7 @@ function buildEmbedHtml(videoId: string): string {
     var player = null;
     window.onYouTubeIframeAPIReady = function() {
       player = new YT.Player('yt', {
-        events: { onReady: function(e) { e.target.playVideo(); } }
+        events: { onReady: function(e) { e.target.setPlaybackRate(${initialRate}); e.target.playVideo(); } }
       });
     };
     window._choreo = {
@@ -84,6 +84,7 @@ export default function PlayerScreen({ videoUrl, onBack }: PlayerScreenProps) {
   const webViewRef = useRef<WebView | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const playbackRateRef = useRef(playbackRate);
   const [mirrored, setMirrored] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [showFsControls, setShowFsControls] = useState(false);
@@ -92,6 +93,18 @@ export default function PlayerScreen({ videoUrl, onBack }: PlayerScreenProps) {
   const videoId = parseYouTubeId(videoUrl);
   const { isFavorite, addFavorite, removeFavorite, favorites } = useFavorites();
   const starred = isFavorite(videoUrl);
+
+  // Keep a ref in sync so useMemo can read the current rate when videoId changes
+  // without adding playbackRate as a dependency (which would rebuild + reload the WebView).
+  useEffect(() => { playbackRateRef.current = playbackRate; }, [playbackRate]);
+
+  // Rebuild the embed HTML only when the video changes — not when rate changes.
+  // Rate changes mid-playback go through injectJavaScript instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const embedHtml = useMemo(
+    () => buildEmbedHtml(videoId ?? '', playbackRateRef.current),
+    [videoId],
+  );
   const { width, height } = useWindowDimensions();
   const portraitPlayerHeight = Math.round(width * (9 / 16));
 
@@ -136,12 +149,15 @@ export default function PlayerScreen({ videoUrl, onBack }: PlayerScreenProps) {
     setMirrored(m => !m);
   }
 
-  function handleStarToggle() {
+  async function handleStarToggle() {
     if (starred) {
       const fav = favorites.find((f) => f.url === videoUrl);
       if (fav) removeFavorite(fav.id);
     } else {
-      addFavorite(videoUrl, videoId ?? videoUrl);
+      // Fetch the real video title from YouTube's oEmbed API (no key needed).
+      // Falls back to the video ID if the fetch fails.
+      const title = await fetchVideoTitle(videoUrl);
+      addFavorite(videoUrl, title ?? videoId ?? videoUrl);
     }
   }
 
@@ -196,7 +212,7 @@ export default function PlayerScreen({ videoUrl, onBack }: PlayerScreenProps) {
             <WebView
               ref={webViewRef}
               source={{
-                html: buildEmbedHtml(videoId),
+                html: embedHtml,
                 baseUrl: 'https://www.youtube-nocookie.com',
               }}
               style={styles.webview}

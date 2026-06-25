@@ -51,3 +51,19 @@ export function parseYouTubeId(input: string): string | null {
 
   return null;
 }
+
+/**
+ * Fetches the video title from YouTube's oEmbed endpoint (no API key required).
+ * Returns null on any error or network failure.
+ */
+export async function fetchVideoTitle(url: string): Promise<string | null> {
+  try {
+    const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+    const res = await fetch(endpoint);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data.title === 'string' ? data.title : null;
+  } catch {
+    return null;
+  }
+}
