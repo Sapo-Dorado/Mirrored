@@ -44,7 +44,7 @@ export default function HomeScreen({ onPlay }: HomeScreenProps) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.title}>Choreo</Text>
+          <Text style={styles.title}>Mirrored</Text>
 
           <TextInput
             style={styles.input}

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Choreo",
+    "name": "Mirrored",
     "slug": "choreo",
     "plugins": [
       "expo-screen-orientation",
